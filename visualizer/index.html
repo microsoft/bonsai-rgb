@@ -1,0 +1,92 @@
+
+<html>
+<head>
+    <script language="JavaScript">
+        /*
+         * Copyright: Microsoft 2022
+         *
+         */
+        const params = new URLSearchParams(window.location.search);
+        const darkMode = params.get("_theme") === "dark";
+
+        const debug = params.has("debug")
+            ? params.get("debug") === "true"
+            : false;
+
+        function init() {
+
+            if (debug) {
+                out.textContent = "Waiting...";
+            }
+
+            // adjust our colors based upon theme.
+            if (darkMode) {
+                document.body.style.backgroundColor = "#333";
+                document.body.style.color = "white";
+                pole.style.fill = "white";
+            }
+
+            window.addEventListener(
+                "message",
+                (event) => {
+                    // convert message to formatted JSON text for display
+                    const data = JSON.parse(event.data);
+                    const str = JSON.stringify(data, null, 4);
+                    if (debug) {
+                        out.textContent = str;
+                    }
+
+                    // read state out of message and convert units
+                    const current = data["state"]["current_reflectance"];
+                    const target = data["state"]["target_reflectance"];
+
+                    var cmyk2rgb = function (c, m, y, k) {
+                        c = (c / 100);
+                        m = (m / 100);
+                        y = (y / 100);
+                        k = (k / 100);
+                        c = c * (1 - k) + k;
+                        m = m * (1 - k) + k;
+                        y = y * (1 - k) + k;
+                        var r = 1 - c;
+                        var g = 1 - m;
+                        var b = 1 - y;
+                        r = Math.round(255 * r);
+                        g = Math.round(255 * g);
+                        b = Math.round(255 * b);
+                        var rgb = "rgb(" + r + "," + g + "," + b + ")"
+                        return rgb
+                    }
+
+                    var target_str = cmyk2rgb(data["state"]["target_C"], data["state"]["target_M"], data["state"]["target_Y"], data["state"]["target_K"]);
+                    var current_str = "rgb(" + data["state"]["current_red"] + "," + data["state"]["current_green"] + "," + data["state"]["current_blue"] + ")"
+
+                    document.getElementById("Target").style.backgroundColor = target_str;
+                    document.getElementById("Current").style.backgroundColor = current_str;
+                    document.getElementById("Current_Text").innerHTML = "Current Color <br> MAE = " + data["state"]["Mean_Absolute_Error"].toLocaleString('en-US', {minimumIntegerDigits: 2, minimumFractionDigits:2, useGrouping:false});
+
+                },
+                false
+            );
+        }
+    </script>
+    <title>RGB2CMYK Sim Visualizer</title>
+</head>
+<body>
+    <script language="JavaScript">
+        init();
+    </script>
+    <h2>RGB2CMYK Sim Visualizer</h2>
+    <table style="border-spacing:30px;width: auto;margin-left: auto;margin-right: auto;font-size:large;">
+        <tr height="100px">
+            <td style="text-align:center;">Target Color</td>
+            <td id="Target" style="width:300px;"></td>
+        </tr>
+        <tr height="100px">
+            <td id="Current_Text" style="text-align:center">Current Color</td>
+            <td id="Current"> </td>
+        </tr>
+    </table>
+</body>
+
+</html>

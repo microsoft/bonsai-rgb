@@ -1,0 +1,13 @@
+# conda env create -f environment.yml
+# conda activate rgb
+
+name: rgb
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10.0
+  - numpy
+  - ipython
+  - pip
+  - pip:
+    - -r requirements.txt

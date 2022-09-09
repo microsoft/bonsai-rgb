@@ -1,0 +1,3 @@
+microsoft-bonsai-api
+numpy
+python-dotenv
