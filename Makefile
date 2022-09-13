@@ -3,7 +3,7 @@
 # https://blog.ianpreston.ca/conda/python/bash/2020/05/13/conda_envs.html
 
 SHELL=bash
-CONDA_ENV = ./condaenv
+CONDA_ENV = ./conda
 CONDA_ACTIVATE = eval "$$(conda shell.bash hook)"; conda activate $(CONDA_ENV); export PYTHONPATH=`pwd`:$${PYTHONPATH}
 
 .PHONY: test clean run help
@@ -15,7 +15,7 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 	rm -rf $(CONDA_ENV)
-	docker rmi -f rgb
+	docker rmi -f rgb 2&> /dev/null
 
 test: $(CONDA_ENV)
 	$(CONDA_ACTIVATE); python test.py
